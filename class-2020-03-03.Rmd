@@ -1,0 +1,45 @@
+---
+title: "class-2020-03-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+install.packages("googlesheets4")
+install.packages("fs")
+library(readxl)
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+url_current <- "https://registrar.fas.harvard.edu/files/fas-registrar/files/class_enrollment_summary_by_term_2.25.20_0.xlsx"
+
+url_old <- "https://registrar.fas.harvard.edu/files/fas-registrar/files/class_enrollment_summary_by_term_3.22.19_0.xlsx"
+
+download.file(url = url_current,
+              destfile = "current.xlsx")
+
+download.file(url = url_old,
+              destfile = "old.xlsx")
+
+current <- read_excel("current.xlsx", skip = 3) %>% 
+  clean_names() %>% 
+  filter(! is.na(course_name))
+
+old <- read_excel("old.xlsx", skip = 3) %>% 
+  clean_names() %>% 
+  filter(! is.na(course_name)) %>% 
+  select(course_id)
+
+joined <- anti_join(current, old, by = "course_id")
+
+joined %>% 
+  arrange(desc(u_grad)) %>% 
+  head(5)
+
+```
+
+
+
